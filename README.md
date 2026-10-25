@@ -53,3 +53,10 @@ Only `FREQ=YEARLY` rules with `BYMONTH` and optional `BYDAY` are supported. That
 ## Awkward edge
 
 DTSTART inside a STANDARD/DAYLIGHT sub-component is a naive local time in the *from* offset, not UTC. A rule that says `DTSTART:19700308T020000` with `TZOFFSETFROM:-0500` means 02:00 EST, which is 07:00 UTC. If you pass a feed whose DTSTART already carries a `Z` suffix, this library strips it and treats the value as wall-clock in the from-offset — which is technically wrong per the spec but matches what broken feeds in the wild actually intend. If your feed is spec-compliant, this never triggers.
+
+## Performance
+
+The window keeps a bounded buffer, so `push` is constant time and memory does not
+grow with the length of the stream. `peak` and `trough` are linear in the window
+size, which is the trade that keeps `push` cheap.
+
